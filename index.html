@@ -433,23 +433,37 @@ function updateTimer() {
 function showQuestion() {
     if (currentQuestion >= selectedQuestions.length) { showResult(); return; }
     const q = selectedQuestions[currentQuestion];
+    
+    // === ПЕРЕМЕШИВАНИЕ ОТВЕТОВ ===
+    let shuffledOptions = q.options.map((opt, i) => ({ opt, originalIndex: i }));
+    for (let i = shuffledOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+    }
+    // ==============================
+
     document.getElementById('question-text').innerText = q.q;
     document.getElementById('question-counter').innerText = `Вопрос ${currentQuestion + 1}/${selectedQuestions.length}`;
     document.getElementById('progress-fill').style.width = ((currentQuestion / selectedQuestions.length) * 100) + '%';
     document.getElementById('explanation-box').classList.remove('show');
     document.getElementById('explanation-box').innerText = q.exp || 'Объяснение отсутствует.';
     document.getElementById('next-btn').classList.add('hidden');
-    const container = document.getElementById('options-container'); container.innerHTML = '';
     
-    q.options.forEach((opt, index) => {
-        const div = document.createElement('div'); div.className = 'option'; div.innerText = opt;
-        div.onclick = () => checkAnswer(index, div);
+    const container = document.getElementById('options-container'); 
+    container.innerHTML = '';
+    
+    shuffledOptions.forEach((item) => {
+        const div = document.createElement('div'); 
+        div.className = 'option'; 
+        div.innerText = item.opt;
+        div.onclick = () => checkAnswer(item.originalIndex, div);
+        
         let startX = 0;
         div.addEventListener('touchstart', e => startX = e.touches[0].clientX);
         div.addEventListener('touchend', e => {
             const diff = e.changedTouches[0].clientX - startX;
-            if (diff > 50) { div.classList.add('swipe-right'); checkAnswer(index, div); }
-            else if (diff < -50) { div.classList.add('swipe-left'); checkAnswer(index, div); }
+            if (diff > 50) { div.classList.add('swipe-right'); checkAnswer(item.originalIndex, div); }
+            else if (diff < -50) { div.classList.add('swipe-left'); checkAnswer(item.originalIndex, div); }
         });
         container.appendChild(div);
     });
