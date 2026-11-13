@@ -7,41 +7,68 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        :root {
+            --bg: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text: #fff;
+            --text-muted: #b3b3b3;
+            --option-bg: rgba(255, 255, 255, 0.05);
+            --option-hover: rgba(255, 255, 255, 0.15);
+            --border: rgba(255, 255, 255, 0.1);
         }
+
+        [data-theme="light"] {
+            --bg: linear-gradient(to right, #e0eafc, #cfdef3);
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --text: #1a1a2e;
+            --text-muted: #555;
+            --option-bg: rgba(0, 0, 0, 0.05);
+            --option-hover: rgba(0, 0, 0, 0.1);
+            --border: rgba(0, 0, 0, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background: #0f0c29;
-            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
-            color: #fff;
+            background: var(--bg);
+            color: var(--text);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            transition: background 0.3s, color 0.3s;
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--card-bg);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border);
             padding: 35px 25px;
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
             max-width: 500px;
             width: 100%;
             text-align: center;
-            animation: fadeIn 0.5s ease-out;
+            position: relative;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .theme-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--option-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         h1 {
@@ -53,12 +80,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        p {
-            font-size: 15px;
-            color: #b3b3b3;
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
+        p { font-size: 15px; color: var(--text-muted); margin-bottom: 25px; }
 
         .btn {
             background: linear-gradient(90deg, #00dbde 0%, #fc00ff 100%);
@@ -69,110 +91,71 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
             width: 100%;
             margin-top: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 5px 15px rgba(252, 0, 255, 0.3);
+            transition: 0.3s;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(252, 0, 255, 0.5);
-        }
+        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+        .btn-secondary { background: var(--option-bg); color: var(--text); border: 1px solid var(--border); }
 
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: none;
-            margin-top: 15px;
-            font-size: 14px;
-        }
+        .hidden { display: none; }
 
-        .hidden {
-            display: none;
-        }
-
-        .question {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            text-align: left;
-            line-height: 1.4;
-        }
+        .timer { font-size: 18px; font-weight: 800; color: #ff4757; margin-bottom: 15px; }
+        .question { font-size: 18px; font-weight: 600; margin-bottom: 20px; text-align: left; }
 
         .option {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--option-bg);
+            border: 1px solid var(--border);
             padding: 15px;
             border-radius: 12px;
             margin-bottom: 12px;
             cursor: pointer;
-            transition: 0.2s;
             text-align: left;
-            font-size: 15px;
-            position: relative;
-            overflow: hidden;
+            transition: 0.2s;
         }
 
-        .option::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: 0.5s;
-        }
+        .option:hover { background: var(--option-hover); }
 
-        .option:hover::before {
-            left: 100%;
-        }
+        .option.correct { background: #2ecc71 !important; color: white; }
+        .option.wrong { background: #e74c3c !important; color: white; }
 
-        .option:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: scale(1.02);
-        }
+        .progress-bar { width: 100%; height: 6px; background: var(--border); border-radius: 10px; margin-bottom: 25px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #00dbde 0%, #fc00ff 100%); width: 0%; transition: 0.3s; }
 
-        .progress-bar {
+        .result-title { font-size: 32px; font-weight: 800; color: #00dbde; margin: 20px 0; }
+        .result-desc { color: var(--text-muted); margin-bottom: 30px; }
+
+        .leaderboard { text-align: left; margin-top: 20px; max-height: 200px; overflow-y: auto; }
+        .leaderboard-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--border); }
+        .leaderboard-item span:first-child { font-weight: 600; }
+        .leaderboard-item span:last-child { color: #00dbde; font-weight: 800; }
+
+        input[type="text"] {
             width: 100%;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            margin-bottom: 15px;
             border-radius: 10px;
-            margin-bottom: 25px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00dbde 0%, #fc00ff 100%);
-            width: 0%;
-            transition: 0.3s;
-        }
-
-        .result-title {
-            font-size: 32px;
-            font-weight: 800;
-            color: #00dbde;
-            margin: 20px 0;
-            text-shadow: 0 0 20px rgba(0, 219, 222, 0.5);
-        }
-
-        .result-desc {
-            color: #b3b3b3;
-            margin-bottom: 30px;
-            font-size: 15px;
+            border: 1px solid var(--border);
+            background: var(--option-bg);
+            color: var(--text);
+            font-family: inherit;
         }
     </style>
 </head>
 <body>
 
 <div class="container" id="start-screen">
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌙</button>
     <h1>💻 Узнай свой уровень</h1>
-    <p>15 вопросов, которые покажут, кто ты: от новичка до сеньора. Готов проверить?</p>
+    <p>15 случайных вопросов. Таймер: 10 минут. Сможешь попасть в топ?</p>
     <button class="btn" onclick="startTest()">Начать тест</button>
 </div>
 
 <div class="container hidden" id="quiz-screen">
+    <div class="timer" id="timer-display">10:00</div>
     <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
     <div class="question" id="question-text"></div>
     <div id="options-container"></div>
@@ -182,97 +165,224 @@
     <h1>Твой результат</h1>
     <div class="result-title" id="result-title"></div>
     <div class="result-desc" id="result-desc"></div>
-    <button class="btn" onclick="shareResult()">Поделиться в Telegram</button>
+    
+    <div id="name-input-block">
+        <p>Введи имя для таблицы лидеров:</p>
+        <input type="text" id="player-name" placeholder="Твоё имя" maxlength="15">
+        <button class="btn" onclick="submitScore()">Сохранить результат</button>
+    </div>
+
+    <div class="leaderboard" id="leaderboard-container">
+        <h3 style="margin-bottom: 10px;">🏆 Топ-10</h3>
+        <div id="leaderboard-list"></div>
+    </div>
+
     <button class="btn btn-secondary" onclick="location.reload()">Пройти заново</button>
 </div>
 
-<script>
-    const questions = [
-        { q: "1. Что делает этот код: print('Hello')?", options: ["Выводит текст Hello", "Останавливает программу", "Создает файл", "Ничего не делает"], correct: 0 },
-        { q: "2. Какой язык чаще всего используют для нейросетей?", options: ["HTML", "Python", "C++", "Java"], correct: 1 },
-        { q: "3. Что такое Git?", options: ["Язык программирования", "Система контроля версий", "Редактор кода", "База данных"], correct: 1 },
-        { q: "4. Что означает ошибка 'SyntaxError'?", options: ["Ошибка в логике", "Ошибка в синтаксисе кода", "Нет интернета", "Не хватает памяти"], correct: 1 },
-        { q: "5. Какой из этих языков не является языком программирования?", options: ["Python", "Java", "HTML", "C#"], correct: 2 },
-        { q: "6. Что такое API?", options: ["Игра", "Интерфейс для взаимодействия программ", "База данных", "Тип файла"], correct: 1 },
-        { q: "7. Какой цикл выполняется хотя бы один раз?", options: ["for", "while", "do-while", "foreach"], correct: 2 },
-        { q: "8. Что означает '404'?", options: ["Ошибка сервера", "Страница не найдена", "Нет доступа", "Слишком много запросов"], correct: 1 },
-        { q: "9. Что такое Docker?", options: ["Браузер", "Инструмент для контейнеризации", "Язык программирования", "База данных"], correct: 1 },
-        { q: "10. Что такое SQL-инъекция?", options: ["Ускорение базы", "Взлом через ввод данных", "Сжатие данных", "Резервное копирование"], correct: 1 },
-        { q: "11. Что такое рекурсия?", options: ["Вызов функцией самой себя", "Цикл", "Тип данных", "Ошибка"], correct: 0 },
-        { q: "12. Какой тип данных хранит true/false?", options: ["int", "string", "boolean", "float"], correct: 2 },
-        { q: "13. Что делает команда git commit?", options: ["Сохраняет изменения", "Удаляет файлы", "Скачивает репозиторий", "Создает ветку"], correct: 0 },
-        { q: "14. Что такое REST API?", options: ["Архитектурный стиль для API", "Язык", "База данных", "Фреймворк"], correct: 0 },
-        { q: "15. Что означает 'O(n)' в сложности алгоритма?", options: ["Линейная сложность", "Квадратичная", "Логарифмическая", "Константная"], correct: 0 }
+<script type="module">
+    // ==== FIREBASE CONFIG (ВСТАВЬ СВОИ ДАННЫЕ) ====
+    const firebaseConfig = {
+        apiKey: "ТВОЙ_API_KEY",
+        authDomain: "ТВОЙ_PROJECT.firebaseapp.com",
+        databaseURL: "https://ТВОЙ_PROJECT-default-rtdb.firebaseio.com",
+        projectId: "ТВОЙ_PROJECT",
+        storageBucket: "ТВОЙ_PROJECT.appspot.com",
+        messagingSenderId: "ТВОЙ_SENDER_ID",
+        appId: "ТВОЙ_APP_ID"
+    };
+
+    // Импорт Firebase (CDN)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+    import { getDatabase, ref, push, query, orderByChild, limitToLast, get } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // ==== БАЗА ВОПРОСОВ (30 штук) ====
+    const allQuestions = [
+        { q: "1. Что делает print('Hello')?", options: ["Выводит текст", "Стопает программу", "Создает файл", "Ничего"], correct: 0 },
+        { q: "2. Язык для нейросетей?", options: ["HTML", "Python", "C++", "Java"], correct: 1 },
+        { q: "3. Что такое Git?", options: ["Язык", "Контроль версий", "Редактор", "База"], correct: 1 },
+        { q: "4. Что такое SyntaxError?", options: ["Логика", "Ошибка синтаксиса", "Нет сети", "Мало памяти"], correct: 1 },
+        { q: "5. Что не язык программирования?", options: ["Python", "Java", "HTML", "C#"], correct: 2 },
+        { q: "6. Что такое API?", options: ["Игра", "Интерфейс", "База", "Файл"], correct: 1 },
+        { q: "7. Цикл с одним выполнением?", options: ["for", "while", "do-while", "foreach"], correct: 2 },
+        { q: "8. Что такое 404?", options: ["Ошибка сервера", "Страница не найдена", "Нет доступа", "Много запросов"], correct: 1 },
+        { q: "9. Что такое Docker?", options: ["Браузер", "Контейнеризация", "Язык", "База"], correct: 1 },
+        { q: "10. Что такое SQL-инъекция?", options: ["Ускорение", "Взлом", "Сжатие", "Бэкап"], correct: 1 },
+        { q: "11. Что такое рекурсия?", options: ["Вызов себя", "Цикл", "Тип", "Ошибка"], correct: 0 },
+        { q: "12. Тип true/false?", options: ["int", "string", "boolean", "float"], correct: 2 },
+        { q: "13. Что делает git commit?", options: ["Сохраняет", "Удаляет", "Качает", "Ветвит"], correct: 0 },
+        { q: "14. Что такое REST API?", options: ["Стиль", "Язык", "База", "Фреймворк"], correct: 0 },
+        { q: "15. Что такое O(n)?", options: ["Линейная", "Квадратичная", "Лог", "Константа"], correct: 0 },
+        { q: "16. Что такое JSON?", options: ["Формат данных", "Язык", "База", "Сервер"], correct: 0 },
+        { q: "17. Что такое фронтенд?", options: ["Сервер", "Клиент", "База", "Сеть"], correct: 1 },
+        { q: "18. Что такое бэкенд?", options: ["Клиент", "Сервер", "Дизайн", "Тест"], correct: 1 },
+        { q: "19. Что такое HTTP?", options: ["Протокол", "Язык", "База", "Файл"], correct: 0 },
+        { q: "20. Что такое CSS?", options: ["Стили", "Логика", "База", "Сервер"], correct: 0 },
+        { q: "21. Что такое массив?", options: ["Список", "Число", "Строка", "Флаг"], correct: 0 },
+        { q: "22. Что такое функция?", options: ["Блок кода", "Переменная", "Цикл", "Массив"], correct: 0 },
+        { q: "23. Что такое переменная?", options: ["Хранилище", "Функция", "Цикл", "Класс"], correct: 0 },
+        { q: "24. Что такое класс?", options: ["Шаблон", "Функция", "Переменная", "Массив"], correct: 0 },
+        { q: "25. Что такое баг?", options: ["Ошибка", "Фича", "Тест", "Код"], correct: 0 },
+        { q: "26. Что такое дебаг?", options: ["Поиск ошибок", "Написание", "Удаление", "Запуск"], correct: 0 },
+        { q: "27. Что такое IDE?", options: ["Среда", "Язык", "База", "Сервер"], correct: 0 },
+        { q: "28. Что такое компилятор?", options: ["Переводчик", "Редактор", "База", "Сервер"], correct: 0 },
+        { q: "29. Что такое интерпретатор?", options: ["Выполняет", "Компилирует", "Хранит", "Удаляет"], correct: 0 },
+        { q: "30. Что такое алгоритм?", options: ["Шаги", "Код", "База", "Сервер"], correct: 0 }
     ];
 
+    let selectedQuestions = [];
     let currentQuestion = 0;
     let score = 0;
+    let timerInterval;
+    let timeLeft = 600; // 10 минут в секундах
+    let endTime;
 
-    function startTest() {
+    // ==== ТЕМА ====
+    window.toggleTheme = () => {
+        const body = document.body;
+        const btn = document.getElementById('theme-btn');
+        if (body.getAttribute('data-theme') === 'light') {
+            body.removeAttribute('data-theme');
+            btn.innerText = '🌙';
+        } else {
+            body.setAttribute('data-theme', 'light');
+            btn.innerText = '☀️';
+        }
+    };
+
+    // ==== ТЕСТ ====
+    window.startTest = () => {
+        // Выбираем 15 случайных вопросов
+        selectedQuestions = [...allQuestions].sort(() => 0.5 - Math.random()).slice(0, 15);
+        
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('quiz-screen').classList.remove('hidden');
+        
+        // Запуск таймера (по дедлайну, чтобы не сбивался)
+        endTime = Date.now() + timeLeft * 1000;
+        updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
+        
         showQuestion();
+    };
+
+    function updateTimer() {
+        const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+        const minutes = Math.floor(remaining / 60);
+        const seconds = remaining % 60;
+        document.getElementById('timer-display').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        
+        if (remaining <= 0) {
+            clearInterval(timerInterval);
+            showResult();
+        }
     }
 
     function showQuestion() {
-        if (currentQuestion >= questions.length) {
+        if (currentQuestion >= selectedQuestions.length) {
             showResult();
             return;
         }
 
-        const q = questions[currentQuestion];
+        const q = selectedQuestions[currentQuestion];
         document.getElementById('question-text').innerText = q.q;
         
-        const progressPercent = (currentQuestion / questions.length) * 100;
+        const progressPercent = (currentQuestion / selectedQuestions.length) * 100;
         document.getElementById('progress-fill').style.width = progressPercent + '%';
 
-        const optionsContainer = document.getElementById('options-container');
-        optionsContainer.innerHTML = '';
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
 
         q.options.forEach((opt, index) => {
             const div = document.createElement('div');
             div.className = 'option';
             div.innerText = opt;
-            div.onclick = () => checkAnswer(index);
-            optionsContainer.appendChild(div);
+            div.onclick = () => checkAnswer(index, div);
+            container.appendChild(div);
         });
     }
 
-    function checkAnswer(index) {
-        if (index === questions[currentQuestion].correct) {
+    function checkAnswer(index, element) {
+        const correctIndex = selectedQuestions[currentQuestion].correct;
+        
+        // Подсветка
+        if (index === correctIndex) {
+            element.classList.add('correct');
             score++;
+        } else {
+            element.classList.add('wrong');
+            // Показать правильный
+            const options = document.querySelectorAll('.option');
+            options[correctIndex].classList.add('correct');
         }
-        currentQuestion++;
-        showQuestion();
+
+        // Блокируем клики на 1 секунду и переходим дальше
+        document.querySelectorAll('.option').forEach(el => el.style.pointerEvents = 'none');
+        setTimeout(() => {
+            currentQuestion++;
+            showQuestion();
+        }, 1000);
     }
 
     function showResult() {
+        clearInterval(timerInterval);
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
-        
-        document.getElementById('progress-fill').style.width = '100%';
 
         const title = document.getElementById('result-title');
         const desc = document.getElementById('result-desc');
 
-        if (score === 15) {
-            title.innerText = "🏆 Сеньор";
-            desc.innerText = "Идеально! Ты знаешь всё. Пора захватывать мир технологий.";
-        } else if (score >= 11) {
-            title.innerText = "🚀 Мидл";
-            desc.innerText = "Отличный результат! Ты готов к реальным проектам.";
-        } else if (score >= 6) {
-            title.innerText = "🌱 Джуниор";
-            desc.innerText = "Хорошее начало! Продолжай учиться, и всё получится.";
-        } else {
-            title.innerText = "👶 Новичок";
-            desc.innerText = "Не переживай! Все с чего-то начинали. Главное — практика.";
-        }
+        if (score >= 13) { title.innerText = "🏆 Сеньор"; desc.innerText = "Ты знаешь всё!"; }
+        else if (score >= 9) { title.innerText = "🚀 Мидл"; desc.innerText = "Отличный результат!"; }
+        else if (score >= 5) { title.innerText = "🌱 Джуниор"; desc.innerText = "Хорошее начало!"; }
+        else { title.innerText = "👶 Новичок"; desc.innerText = "Главное — практика."; }
+
+        loadLeaderboard();
     }
 
-    function shareResult() {
-        const text = encodeURIComponent(`Я прошел тест на уровень программирования! Мой результат: ${document.getElementById('result-title').innerText}. А ты?`);
-        window.open(`https://t.me/share/url?url=${window.location.href}&text=${text}`);
+    // ==== FIREBASE: Сохранение и Загрузка ====
+    window.submitScore = async () => {
+        const name = document.getElementById('player-name').value.trim();
+        if (!name) return alert("Введи имя!");
+        
+        try {
+            await push(ref(db, 'leaderboard'), {
+                name: name,
+                score: score,
+                timestamp: Date.now()
+            });
+            document.getElementById('name-input-block').classList.add('hidden');
+            loadLeaderboard();
+        } catch (e) {
+            console.error("Ошибка сохранения:", e);
+            alert("Не удалось сохранить результат. Проверь настройки Firebase.");
+        }
+    };
+
+    async function loadLeaderboard() {
+        const list = document.getElementById('leaderboard-list');
+        list.innerHTML = 'Загрузка...';
+        
+        try {
+            const q = query(ref(db, 'leaderboard'), orderByChild('score'), limitToLast(10));
+            const snapshot = await get(q);
+            
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const arr = Object.values(data).sort((a, b) => b.score - a.score);
+                list.innerHTML = '';
+                arr.forEach((item, i) => {
+                    list.innerHTML += `<div class="leaderboard-item"><span>${i+1}. ${item.name}</span><span>${item.score}/15</span></div>`;
+                });
+            } else {
+                list.innerHTML = 'Пока никто не играл.';
+            }
+        } catch (e) {
+            list.innerHTML = 'Ошибка загрузки. Проверь Firebase.';
+        }
     }
 </script>
 
