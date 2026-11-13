@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Узнай свой уровень программирования</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1e2f, #2a2a40);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background: #2e2e48;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 16px;
+            color: #b0b0d0;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #5a4bcf;
+        }
+        .hidden {
+            display: none;
+        }
+        .question {
+            font-size: 18px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .option {
+            background: #3e3e5e;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+        }
+        .option:hover {
+            background: #4e4e7e;
+        }
+        .result-title {
+            font-size: 28px;
+            color: #00d2ff;
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        }
+        .progress {
+            font-size: 14px;
+            color: #888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="start-screen">
+    <h1>💻 Узнай свой уровень программирования</h1>
+    <p>Пройди короткий тест из 5 вопросов и узнай, кто ты: от новичка до сеньора.</p>
+    <button onclick="startTest()">Начать тест</button>
+</div>
+
+<div class="container hidden" id="quiz-screen">
+    <div class="question" id="question-text"></div>
+    <div id="options-container"></div>
+    <div class="progress" id="progress-text"></div>
+</div>
+
+<div class="container hidden" id="result-screen">
+    <h1>Твой результат</h1>
+    <div class="result-title" id="result-title"></div>
+    <p id="result-desc"></p>
+    <button onclick="shareResult()">Поделиться в Telegram</button>
+    <button onclick="location.reload()" style="background: #444;">Пройти заново</button>
+</div>
+
+<script>
+    const questions = [
+        {
+            q: "Что делает этот код?\nprint('Hello')",
+            options: ["Выводит текст Hello", "Останавливает программу", "Создает файл", "Ничего не делает"],
+            correct: 0
+        },
+        {
+            q: "Какой язык чаще всего используют для нейросетей?",
+            options: ["HTML", "Python", "C++", "Java"],
+            correct: 1
+        },
+        {
+            q: "Что такое Git?",
+            options: ["Язык программирования", "Система контроля версий", "Редактор кода", "База данных"],
+            correct: 1
+        },
+        {
+            q: "Что означает ошибка 'SyntaxError'?",
+            options: ["Ошибка в логике", "Ошибка в синтаксисе кода", "Нет интернета", "Не хватает памяти"],
+            correct: 1
+        },
+        {
+            q: "Какой из этих языков не является языком программирования?",
+            options: ["Python", "Java", "HTML", "C#"],
+            correct: 2
+        }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    function startTest() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        showQuestion();
+    }
+
+    function showQuestion() {
+        if (currentQuestion >= questions.length) {
+            showResult();
+            return;
+        }
+
+        const q = questions[currentQuestion];
+        document.getElementById('question-text').innerText = q.q;
+        document.getElementById('progress-text').innerText = `Вопрос ${currentQuestion + 1} из ${questions.length}`;
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+
+        q.options.forEach((opt, index) => {
+            const div = document.createElement('div');
+            div.className = 'option';
+            div.innerText = opt;
+            div.onclick = () => checkAnswer(index);
+            optionsContainer.appendChild(div);
+        });
+    }
+
+    function checkAnswer(index) {
+        if (index === questions[currentQuestion].correct) {
+            score++;
+        }
+        currentQuestion++;
+        showQuestion();
+    }
+
+    function showResult() {
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+
+        const title = document.getElementById('result-title');
+        const desc = document.getElementById('result-desc');
+
+        if (score === 5) {
+            title.innerText = "🏆 Сеньор";
+            desc.innerText = "Ты знаешь всё! Пора писать свой собственный стартап.";
+        } else if (score >= 3) {
+            title.innerText = "🚀 Мидл";
+            desc.innerText = "Хороший уровень! Ты готов к реальным проектам.";
+        } else {
+            title.innerText = "🌱 Джуниор";
+            desc.innerText = "Отличное начало! Главное — не останавливаться на достигнутом.";
+        }
+    }
+
+    function shareResult() {
+        const text = encodeURIComponent(`Я прошел тест на уровень программирования! Мой результат: ${document.getElementById('result-title').innerText}. А ты?`);
+        window.open(`https://t.me/share/url?url=${window.location.href}&text=${text}`);
+    }
+</script>
+
+</body>
+</html>
