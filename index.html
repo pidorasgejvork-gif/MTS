@@ -1,243 +1,145 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CodeMaster: Твой путь в IT</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap');
-
-        :root {
-            --bg: #0b0f19;
-            --card-bg: rgba(20, 25, 40, 0.7);
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
-            --accent: #6366f1;
-            --accent-glow: rgba(99, 102, 241, 0.4);
-            --success: #10b981;
-            --error: #ef4444;
-            --option-bg: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
-        }
-
-        [data-theme="light"] {
-            --bg: #f8fafc;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --text: #0f172a;
-            --text-muted: #64748b;
-            --accent: #4f46e5;
-            --accent-glow: rgba(79, 70, 229, 0.2);
-            --option-bg: rgba(0, 0, 0, 0.02);
-            --border: rgba(0, 0, 0, 0.1);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            display: flex; justify-content: center; align-items: center;
-            min-height: 100vh; padding: 20px;
-            transition: background 0.4s, color 0.4s;
-            background-image: radial-gradient(circle at 50% 0%, var(--accent-glow) 0%, transparent 50%);
-        }
-
-        .container {
-            background: var(--card-bg);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            padding: 35px 25px; border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            max-width: 600px; width: 100%; text-align: center;
-            position: relative; overflow: hidden;
-        }
-
-        .theme-toggle {
-            position: absolute; top: 20px; right: 20px;
-            background: var(--option-bg); border: 1px solid var(--border);
-            color: var(--text); border-radius: 50%; width: 44px; height: 44px;
-            cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center;
-            transition: 0.3s; z-index: 10;
-        }
-        .theme-toggle:hover { transform: scale(1.1) rotate(15deg); }
-
-        h1 {
-            font-size: 32px; font-weight: 900; margin-bottom: 10px;
-            background: linear-gradient(135deg, #818cf8, #c084fc);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
-        }
-        p { font-size: 16px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.6; }
-
-        .btn {
-            background: var(--accent); color: white; border: none;
-            padding: 16px 32px; border-radius: 14px; font-size: 16px; font-weight: 700;
-            cursor: pointer; width: 100%; margin-top: 12px; transition: 0.3s;
-            box-shadow: 0 10px 20px -10px var(--accent);
-        }
-        .btn:hover { transform: translateY(-3px); box-shadow: 0 15px 25px -10px var(--accent); }
-        .btn-secondary { background: var(--option-bg); color: var(--text); border: 1px solid var(--border); box-shadow: none; }
-        .btn-secondary:hover { background: var(--border); }
-
-        .hidden { display: none !important; }
-
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
-        .menu-item {
-            background: var(--option-bg); border: 1px solid var(--border);
-            padding: 15px; border-radius: 14px; cursor: pointer; text-align: center;
-            transition: 0.2s; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 8px;
-        }
-        .menu-item:hover { background: var(--border); transform: scale(1.02); }
-        .menu-item span:first-child { font-size: 24px; }
-
-        .stats-bar { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 600; font-size: 14px; color: var(--text-muted); }
-        .timer { color: #f59e0b; font-weight: 800; font-size: 18px; }
-        .progress-bar { width: 100%; height: 8px; background: var(--border); border-radius: 10px; margin-bottom: 25px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #6366f1, #c084fc); width: 0%; transition: 0.3s; }
-
-        .question { font-size: 20px; font-weight: 700; margin-bottom: 25px; text-align: left; line-height: 1.4; }
-        
-        .explanation {
-            background: rgba(99, 102, 241, 0.1); border-left: 4px solid var(--accent);
-            padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;
-            font-size: 14px; color: var(--text-muted); display: none;
-        }
-        .explanation.show { display: block; animation: fadeIn 0.3s; }
-
-        .option {
-            background: var(--option-bg); border: 2px solid var(--border);
-            padding: 18px; border-radius: 14px; margin-bottom: 12px;
-            cursor: pointer; text-align: left; font-size: 16px; font-weight: 500;
-            transition: all 0.2s; position: relative; overflow: hidden;
-        }
-        .option:hover { background: var(--border); transform: translateX(5px); }
-        .option.correct { background: rgba(16, 185, 129, 0.2) !important; border-color: var(--success); color: var(--success); }
-        .option.wrong { background: rgba(239, 68, 68, 0.2) !important; border-color: var(--error); color: var(--error); }
-
-        .result-title { font-size: 40px; font-weight: 900; color: var(--accent); margin: 20px 0; text-shadow: 0 0 30px var(--accent-glow); }
-        .result-desc { color: var(--text-muted); margin-bottom: 20px; font-size: 16px; }
-
-        .leaderboard { text-align: left; margin-top: 25px; background: var(--option-bg); border-radius: 16px; padding: 20px; border: 1px solid var(--border); }
-        .leaderboard-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
-        .leaderboard-item:last-child { border-bottom: none; }
-        .leaderboard-item span:last-child { color: var(--accent); font-weight: 800; }
-
-        input[type="text"] {
-            width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px;
-            border: 2px solid var(--border); background: var(--option-bg); color: var(--text);
-            font-family: inherit; font-size: 16px; outline: none; transition: 0.2s;
-        }
-        input[type="text"]:focus { border-color: var(--accent); }
-
-        .review-list { text-align: left; max-height: 200px; overflow-y: auto; margin-top: 20px; font-size: 14px; }
-        .review-item { padding: 10px; border-bottom: 1px solid var(--border); }
-        .review-item strong { color: var(--error); }
-        .review-item span { color: var(--success); }
-
-        .achievements-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px; }
-        .ach-badge { background: var(--option-bg); border: 1px solid var(--border); padding: 8px 12px; border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 5px; opacity: 0.5; transition: 0.3s; }
-        .ach-badge.unlocked { opacity: 1; border-color: var(--accent); background: var(--accent-glow); color: white; box-shadow: 0 0 15px var(--accent-glow); }
-
-        canvas { display: none; }
-        .share-img { max-width: 100%; border-radius: 12px; margin-top: 15px; display: none; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-        .shake { animation: shake 0.3s; }
-        .swipe-left { transform: translateX(-100%) rotate(-10deg); opacity: 0; transition: 0.3s; }
-        .swipe-right { transform: translateX(100%) rotate(10deg); opacity: 0; transition: 0.3s; }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeMaster: Твой путь в IT</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap');
+:root{--bg:#0b0f19;--card-bg:rgba(20,25,40,0.7);--text:#e2e8f0;--text-muted:#94a3b8;--accent:#6366f1;--accent-glow:rgba(99,102,241,0.4);--success:#10b981;--error:#ef4444;--option-bg:rgba(255,255,255,0.03);--border:rgba(255,255,255,0.08)}
+[data-theme="light"]{--bg:#f8fafc;--card-bg:rgba(255,255,255,0.9);--text:#0f172a;--text-muted:#64748b;--accent:#4f46e5;--accent-glow:rgba(79,70,229,0.2);--option-bg:rgba(0,0,0,0.02);--border:rgba(0,0,0,0.1)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--text);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;transition:background 0.4s,color 0.4s;background-image:radial-gradient(circle at 50% 0%,var(--accent-glow) 0%,transparent 50%);overflow-x:hidden}
+.container{background:var(--card-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--border);padding:35px 25px;border-radius:24px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);max-width:600px;width:100%;text-align:center;position:relative;overflow:hidden;z-index:2}
+.theme-toggle{position:absolute;top:20px;right:20px;background:var(--option-bg);border:1px solid var(--border);color:var(--text);border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;transition:0.3s;z-index:10}
+.theme-toggle:hover{transform:scale(1.1) rotate(15deg)}
+h1{font-size:32px;font-weight:900;margin-bottom:10px;background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px}
+p{font-size:16px;color:var(--text-muted);margin-bottom:25px;line-height:1.6}
+.btn{background:var(--accent);color:white;border:none;padding:16px 32px;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;width:100%;margin-top:12px;transition:0.3s;box-shadow:0 10px 20px -10px var(--accent)}
+.btn:hover{transform:translateY(-3px);box-shadow:0 15px 25px -10px var(--accent)}
+.btn-secondary{background:var(--option-bg);color:var(--text);border:1px solid var(--border);box-shadow:none}
+.btn-secondary:hover{background:var(--border)}
+.hidden{display:none!important}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px}
+.menu-item{background:var(--option-bg);border:1px solid var(--border);padding:15px;border-radius:14px;cursor:pointer;text-align:center;transition:0.2s;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:8px}
+.menu-item:hover{background:var(--border);transform:scale(1.02)}
+.menu-item span:first-child{font-size:24px}
+.stats-bar{display:flex;justify-content:space-between;margin-bottom:15px;font-weight:600;font-size:14px;color:var(--text-muted)}
+.timer{color:#f59e0b;font-weight:800;font-size:18px}
+.progress-bar{width:100%;height:8px;background:var(--border);border-radius:10px;margin-bottom:25px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#6366f1,#c084fc);width:0%;transition:0.3s}
+.question{font-size:20px;font-weight:700;margin-bottom:25px;text-align:left;line-height:1.4}
+.explanation{background:rgba(99,102,241,0.1);border-left:4px solid var(--accent);padding:15px;border-radius:8px;margin-bottom:20px;text-align:left;font-size:14px;color:var(--text-muted);display:none}
+.explanation.show{display:block;animation:fadeIn 0.3s}
+.option{background:var(--option-bg);border:2px solid var(--border);padding:18px;border-radius:14px;margin-bottom:12px;cursor:pointer;text-align:left;font-size:16px;font-weight:500;transition:all 0.2s;position:relative;overflow:hidden;perspective:1000px}
+.option:hover{background:var(--border);transform:translateX(5px)}
+.option.correct{background:rgba(16,185,129,0.2)!important;border-color:var(--success);color:var(--success);transform:scale(1.02)}
+.option.wrong{background:rgba(239,68,68,0.2)!important;border-color:var(--error);color:var(--error);animation:shake 0.3s}
+.result-title{font-size:40px;font-weight:900;color:var(--accent);margin:20px 0;text-shadow:0 0 30px var(--accent-glow)}
+.result-desc{color:var(--text-muted);margin-bottom:20px;font-size:16px}
+.leaderboard{text-align:left;margin-top:25px;background:var(--option-bg);border-radius:16px;padding:20px;border:1px solid var(--border)}
+.leaderboard-item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.leaderboard-item:last-child{border-bottom:none}
+.leaderboard-item span:last-child{color:var(--accent);font-weight:800}
+input[type="text"]{width:100%;padding:16px;margin-bottom:15px;border-radius:12px;border:2px solid var(--border);background:var(--option-bg);color:var(--text);font-family:inherit;font-size:16px;outline:none;transition:0.2s}
+input[type="text"]:focus{border-color:var(--accent)}
+.review-list{text-align:left;max-height:200px;overflow-y:auto;margin-top:20px;font-size:14px}
+.review-item{padding:10px;border-bottom:1px solid var(--border)}
+.review-item strong{color:var(--error)}
+.review-item span{color:var(--success)}
+.achievements-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:15px}
+.ach-badge{background:var(--option-bg);border:1px solid var(--border);padding:8px 12px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:5px;opacity:0.5;transition:0.3s}
+.ach-badge.unlocked{opacity:1;border-color:var(--accent);background:var(--accent-glow);color:white;box-shadow:0 0 15px var(--accent-glow)}
+canvas{display:none}
+.share-img{max-width:100%;border-radius:12px;margin-top:15px;display:none}
+#certificate-block{display:none;background:linear-gradient(135deg,#1e1b4b,#312e81);padding:30px;border-radius:16px;border:4px solid #818cf8;color:white;text-align:center;margin-top:20px;position:relative}
+#certificate-block h2{color:#c084fc;font-size:28px;margin-bottom:10px}
+#certificate-block p{color:#e2e8f0;margin-bottom:10px}
+#certificate-block .cert-name{font-size:24px;font-weight:900;color:#fbbf24;margin:15px 0;text-transform:uppercase;letter-spacing:2px}
+#certificate-block .cert-level{font-size:36px;font-weight:900;color:#34d399;text-shadow:0 0 20px rgba(52,211,153,0.5)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.swipe-left{transform:translateX(-100%) rotate(-10deg);opacity:0;transition:0.3s}
+.swipe-right{transform:translateX(100%) rotate(10deg);opacity:0;transition:0.3s}
+</style>
 </head>
 <body>
-
 <canvas id="share-canvas" width="600" height="600"></canvas>
 
 <div class="container" id="start-screen">
-    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌙</button>
-    <h1>🚀 CodeMaster</h1>
-    <p>Проверь свои знания. 100 вопросов в базе. Выбери режим:</p>
-    
-    <button class="btn" onclick="startMode('test')">🎯 Обычный тест (15 вопросов)</button>
-    <div class="menu-grid">
-        <div class="menu-item" onclick="startMode('training')"><span>🧠</span><span>Тренировка</span></div>
-        <div class="menu-item" onclick="startMode('daily')"><span>🔥</span><span>Вызов дня</span></div>
-        <div class="menu-item" onclick="showAchievements()"><span>🏆</span><span>Достижения</span></div>
-        <div class="menu-item" onclick="showLeaderboard()"><span>📊</span><span>Лидеры</span></div>
-    </div>
+<button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌙</button>
+<h1>🚀 CodeMaster</h1>
+<p>Проверь свои знания. 100 вопросов. Умная система запоминает твои ошибки.</p>
+<button class="btn" onclick="startMode('test')">🎯 Обычный тест (15 вопросов)</button>
+<div class="menu-grid">
+<div class="menu-item" onclick="startMode('srs')"><span>🧠</span><span>Умный тест (Ошибки)</span></div>
+<div class="menu-item" onclick="startMode('daily')"><span>🔥</span><span>Вызов дня</span></div>
+<div class="menu-item" onclick="showAchievements()"><span>🏆</span><span>Достижения</span></div>
+<div class="menu-item" onclick="showLeaderboard()"><span>📊</span><span>Лидеры</span></div>
+</div>
 </div>
 
 <div class="container hidden" id="quiz-screen">
-    <div class="stats-bar">
-        <span id="question-counter">Вопрос 1/15</span>
-        <span class="timer" id="timer-display">10:00</span>
-    </div>
-    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-    <div class="question" id="question-text"></div>
-    <div class="explanation" id="explanation-box"></div>
-    <div id="options-container"></div>
-    <button class="btn hidden" id="next-btn" onclick="nextQuestion()">Дальше</button>
+<div class="stats-bar"><span id="question-counter">Вопрос 1/15</span><span class="timer" id="timer-display">10:00</span></div>
+<div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+<div class="question" id="question-text"></div>
+<div class="explanation" id="explanation-box"></div>
+<div id="options-container"></div>
+<button class="btn hidden" id="next-btn" onclick="nextQuestion()">Дальше</button>
 </div>
 
 <div class="container hidden" id="result-screen">
-    <h1>Результат</h1>
-    <div class="result-title" id="result-title"></div>
-    <div class="result-desc" id="result-desc"></div>
-    
-    <button class="btn btn-secondary" onclick="generateShareImage()">📸 Создать картинку</button>
-    <img id="share-img" class="share-img">
-    <button class="btn hidden" id="share-tg-btn" onclick="shareToTelegram()">📤 Поделиться в Telegram</button>
+<h1>Результат</h1>
+<div class="result-title" id="result-title"></div>
+<div class="result-desc" id="result-desc"></div>
 
-    <div id="review-block" class="review-list hidden">
-        <h3>Разбор ошибок:</h3>
-        <div id="review-container"></div>
-    </div>
+<div id="certificate-block">
+    <h2>СЕРТИФИКАТ</h2>
+    <p>Настоящим подтверждается, что</p>
+    <div class="cert-name" id="cert-name">ИМЯ</div>
+    <p>успешно прошёл тест CodeMaster и получил уровень</p>
+    <div class="cert-level" id="cert-level">СЕНЬОР</div>
+    <p style="margin-top:15px; font-size:12px; opacity:0.7;">Дата: <span id="cert-date"></span></p>
+</div>
 
-    <div id="name-input-block">
-        <p>Введи имя для таблицы лидеров:</p>
-        <input type="text" id="player-name" placeholder="Твоё имя" maxlength="15">
-        <button class="btn" onclick="submitScore()">Сохранить результат</button>
-    </div>
+<button class="btn" onclick="generateCertificate()">📜 Получить сертификат</button>
+<button class="btn btn-secondary" onclick="downloadCertificate()" id="download-cert-btn" style="display:none;">📥 Скачать сертификат</button>
+<button class="btn btn-secondary" onclick="shareDuel()">⚔️ Вызвать друга на дуэль</button>
 
-    <button class="btn btn-secondary" onclick="location.reload()" style="margin-top: 15px;">Пройти заново</button>
+<div id="review-block" class="review-list hidden"><h3>Разбор ошибок:</h3><div id="review-container"></div></div>
+<div id="name-input-block"><p>Введи имя для таблицы лидеров:</p><input type="text" id="player-name" placeholder="Твоё имя" maxlength="15"><button class="btn" onclick="submitScore()">Сохранить результат</button></div>
+<button class="btn btn-secondary" onclick="location.reload()" style="margin-top:15px;">Пройти заново</button>
 </div>
 
 <div class="container hidden" id="achievements-screen">
-    <h1>🏆 Достижения</h1>
-    <div class="achievements-grid" id="achievements-list"></div>
-    <button class="btn btn-secondary" onclick="location.reload()" style="margin-top: 20px;">Назад</button>
+<h1>🏆 Достижения</h1>
+<div class="achievements-grid" id="achievements-list"></div>
+<button class="btn btn-secondary" onclick="location.reload()" style="margin-top:20px;">Назад</button>
 </div>
 
 <div class="container hidden" id="leaderboard-screen">
-    <h1>📊 Таблица лидеров</h1>
-    <div class="leaderboard" id="leaderboard-container">
-        <div id="leaderboard-list">Загрузка...</div>
-    </div>
-    <button class="btn btn-secondary" onclick="location.reload()" style="margin-top: 20px;">Назад</button>
+<h1>📊 Таблица лидеров</h1>
+<div class="leaderboard" id="leaderboard-container"><div id="leaderboard-list">Загрузка...</div></div>
+<button class="btn btn-secondary" onclick="location.reload()" style="margin-top:20px;">Назад</button>
 </div>
 
 <script type="module">
-    // ==== ЗВУКИ ====
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    const audioCtx = new AudioContext();
-    function playSound(type) {
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
-        if (type === 'correct') {
-            oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1);
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-        } else {
-            oscillator.type = 'sawtooth'; oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-        }
-        oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.3);
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioContext();
+function playSound(type) {
+    const oscillator = audioCtx.createOscillator(); const gainNode = audioCtx.createGain();
+    oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
+    if (type === 'correct') {
+        oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+    } else {
+        oscillator.type = 'sawtooth'; oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
     }
+    oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.3);
+}
 
-    // ==== БАЗА ВОПРОСОВ (100 штук) ====
-    const allQuestions = [
+const allQuestions = [
     // --- ЛЕГКИЕ (35) ---
     { lvl: 'easy', q: "Что делает print('Hello')?", options: ["Выводит текст", "Стопает программу", "Создает файл", "Ничего"], correct: 0, exp: "print() выводит данные в консоль." },
     { lvl: 'easy', q: "Какой язык чаще всего используют для нейросетей?", options: ["HTML", "Python", "C++", "Java"], correct: 1, exp: "Python имеет библиотеки TensorFlow и PyTorch." },
@@ -345,256 +247,198 @@
     { lvl: 'hard', q: "Что такое MapReduce?", options: ["Параллельная обработка", "База", "Язык", "Сервер"], correct: 0, exp: "Параллельная обработка." }
 ];
 
-    // ==== ЛОГИКА ====
-    let selectedQuestions = [];
-    let currentQuestion = 0;
-    let score = 0;
-    let timerInterval;
-    let timeLeft = 600;
-    let endTime;
-    let currentMode = 'test';
-    let wrongAnswers = [];
-    let isTraining = false;
+let selectedQuestions = [], currentQuestion = 0, score = 0, timerInterval, timeLeft = 600, endTime, currentMode = 'test', wrongAnswers = [], isTraining = false;
 
-    function checkAchievements() {
-        let unlocked = JSON.parse(localStorage.getItem('achievements') || '[]');
-        
-        if (score === 15 && !unlocked.includes('perfect')) unlocked.push('perfect');
-        if (score > 0 && !unlocked.includes('first')) unlocked.push('first');
-        if (score > 10 && !unlocked.includes('pro')) unlocked.push('pro');
-        
-        localStorage.setItem('achievements', JSON.stringify(unlocked));
+function checkAchievements() {
+    let unlocked = JSON.parse(localStorage.getItem('achievements') || '[]');
+    if (score === selectedQuestions.length && selectedQuestions.length > 1 && !unlocked.includes('perfect')) unlocked.push('perfect');
+    if (score > 0 && !unlocked.includes('first')) unlocked.push('first');
+    if (score > 10 && !unlocked.includes('pro')) unlocked.push('pro');
+    localStorage.setItem('achievements', JSON.stringify(unlocked));
+}
+
+window.toggleTheme = () => {
+    const body = document.body, btn = document.getElementById('theme-btn');
+    if (body.getAttribute('data-theme') === 'light') { body.removeAttribute('data-theme'); btn.innerText = '🌙'; }
+    else { body.setAttribute('data-theme', 'light'); btn.innerText = '☀️'; }
+};
+
+window.startMode = (mode) => {
+    currentMode = mode; isTraining = (mode === 'srs');
+    let wrongIds = JSON.parse(localStorage.getItem('wrongIds') || '[]');
+    
+    if (mode === 'srs' && wrongIds.length > 0) {
+        selectedQuestions = allQuestions.filter((q, index) => wrongIds.includes(index));
+        if (selectedQuestions.length === 0) selectedQuestions = [...allQuestions].sort(() => 0.5 - Math.random()).slice(0, 15);
+    } else if (mode === 'daily') {
+        let hardQuestions = allQuestions.filter(q => q.lvl === 'hard');
+        selectedQuestions = [hardQuestions[Math.floor(Math.random() * hardQuestions.length)]];
+    } else {
+        selectedQuestions = [...allQuestions].sort(() => 0.5 - Math.random()).slice(0, 15);
     }
+    
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('quiz-screen').classList.remove('hidden');
+    
+    if (mode !== 'srs' && mode !== 'daily') {
+        endTime = Date.now() + timeLeft * 1000; updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
+    } else { document.getElementById('timer-display').style.display = 'none'; }
+    
+    showQuestion();
+};
 
-    window.toggleTheme = () => {
-        const body = document.body;
-        const btn = document.getElementById('theme-btn');
-        if (body.getAttribute('data-theme') === 'light') {
-            body.removeAttribute('data-theme'); btn.innerText = '🌙';
-        } else {
-            body.setAttribute('data-theme', 'light'); btn.innerText = '☀️';
-        }
-    };
+function updateTimer() {
+    const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+    const minutes = Math.floor(remaining / 60), seconds = remaining % 60;
+    document.getElementById('timer-display').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    if (remaining <= 0) { clearInterval(timerInterval); showResult(); }
+}
 
-    window.startMode = (mode) => {
-        currentMode = mode;
-        isTraining = (mode === 'training');
-        
-        if (mode === 'daily') {
-            // Берем 1 случайный сложный вопрос
-            let hardQuestions = allQuestions.filter(q => q.lvl === 'hard');
-            selectedQuestions = [hardQuestions[Math.floor(Math.random() * hardQuestions.length)]];
-        } else {
-            // Выбираем 15 случайных
-            selectedQuestions = [...allQuestions].sort(() => 0.5 - Math.random()).slice(0, 15);
-        }
-
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('quiz-screen').classList.remove('hidden');
-        
-        if (!isTraining && mode !== 'daily') {
-            endTime = Date.now() + timeLeft * 1000;
-            updateTimer();
-            timerInterval = setInterval(updateTimer, 1000);
-        } else {
-            document.getElementById('timer-display').style.display = 'none';
-        }
-        
-        showQuestion();
-    };
-
-    function updateTimer() {
-        const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
-        const minutes = Math.floor(remaining / 60);
-        const seconds = remaining % 60;
-        document.getElementById('timer-display').innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        if (remaining <= 0) { clearInterval(timerInterval); showResult(); }
-    }
-
-    function showQuestion() {
-        if (currentQuestion >= selectedQuestions.length) { showResult(); return; }
-        const q = selectedQuestions[currentQuestion];
-        
-        document.getElementById('question-text').innerText = q.q;
-        document.getElementById('question-counter').innerText = `Вопрос ${currentQuestion + 1}/${selectedQuestions.length}`;
-        document.getElementById('progress-fill').style.width = ((currentQuestion / selectedQuestions.length) * 100) + '%';
-        
-        document.getElementById('explanation-box').classList.remove('show');
-        document.getElementById('explanation-box').innerText = q.exp || 'Объяснение отсутствует.';
-        document.getElementById('next-btn').classList.add('hidden');
-
-        const container = document.getElementById('options-container');
-        container.innerHTML = '';
-
-        q.options.forEach((opt, index) => {
-            const div = document.createElement('div');
-            div.className = 'option';
-            div.innerText = opt;
-            div.onclick = () => checkAnswer(index, div);
-            
-            // Свайпы
-            let startX = 0;
-            div.addEventListener('touchstart', e => startX = e.touches[0].clientX);
-            div.addEventListener('touchend', e => {
-                const diff = e.changedTouches[0].clientX - startX;
-                if (diff > 50) { div.classList.add('swipe-right'); checkAnswer(index, div); }
-                else if (diff < -50) { div.classList.add('swipe-left'); checkAnswer(index, div); }
-            });
-
-            container.appendChild(div);
+function showQuestion() {
+    if (currentQuestion >= selectedQuestions.length) { showResult(); return; }
+    const q = selectedQuestions[currentQuestion];
+    document.getElementById('question-text').innerText = q.q;
+    document.getElementById('question-counter').innerText = `Вопрос ${currentQuestion + 1}/${selectedQuestions.length}`;
+    document.getElementById('progress-fill').style.width = ((currentQuestion / selectedQuestions.length) * 100) + '%';
+    document.getElementById('explanation-box').classList.remove('show');
+    document.getElementById('explanation-box').innerText = q.exp || 'Объяснение отсутствует.';
+    document.getElementById('next-btn').classList.add('hidden');
+    const container = document.getElementById('options-container'); container.innerHTML = '';
+    
+    q.options.forEach((opt, index) => {
+        const div = document.createElement('div'); div.className = 'option'; div.innerText = opt;
+        div.onclick = () => checkAnswer(index, div);
+        let startX = 0;
+        div.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+        div.addEventListener('touchend', e => {
+            const diff = e.changedTouches[0].clientX - startX;
+            if (diff > 50) { div.classList.add('swipe-right'); checkAnswer(index, div); }
+            else if (diff < -50) { div.classList.add('swipe-left'); checkAnswer(index, div); }
         });
+        container.appendChild(div);
+    });
+}
+
+function checkAnswer(index, element) {
+    const q = selectedQuestions[currentQuestion], correctIndex = q.correct;
+    const actualIndex = allQuestions.findIndex(item => item.q === q.q);
+
+    if (index === correctIndex) {
+        element.classList.add('correct'); playSound('correct'); score++;
+        // Убираем из ошибок, если был
+        let wrongIds = JSON.parse(localStorage.getItem('wrongIds') || '[]');
+        wrongIds = wrongIds.filter(id => id !== actualIndex);
+        localStorage.setItem('wrongIds', JSON.stringify(wrongIds));
+    } else {
+        element.classList.add('wrong'); playSound('wrong');
+        document.querySelectorAll('.option')[correctIndex].classList.add('correct');
+        wrongAnswers.push({ question: q.q, correct: q.options[correctIndex] });
+        // Добавляем в ошибки
+        let wrongIds = JSON.parse(localStorage.getItem('wrongIds') || '[]');
+        if (!wrongIds.includes(actualIndex)) wrongIds.push(actualIndex);
+        localStorage.setItem('wrongIds', JSON.stringify(wrongIds));
     }
 
-    function checkAnswer(index, element) {
-        const q = selectedQuestions[currentQuestion];
-        const correctIndex = q.correct;
-        
-        if (index === correctIndex) {
-            element.classList.add('correct');
-            playSound('correct'); score++;
-        } else {
-            element.classList.add('wrong'); element.classList.add('shake');
-            playSound('wrong');
-            document.querySelectorAll('.option')[correctIndex].classList.add('correct');
-            wrongAnswers.push({ question: q.q, correct: q.options[correctIndex] });
-        }
+    document.querySelectorAll('.option').forEach(el => el.style.pointerEvents = 'none');
+    
+    if (currentMode === 'srs' || currentMode === 'daily') {
+        document.getElementById('explanation-box').classList.add('show');
+        document.getElementById('next-btn').classList.remove('hidden');
+    } else { setTimeout(() => { currentQuestion++; showQuestion(); }, 1000); }
+}
 
-        document.querySelectorAll('.option').forEach(el => el.style.pointerEvents = 'none');
-        
-        if (isTraining || currentMode === 'daily') {
-            document.getElementById('explanation-box').classList.add('show');
-            document.getElementById('next-btn').classList.remove('hidden');
-        } else {
-            setTimeout(() => { currentQuestion++; showQuestion(); }, 1000);
-        }
+window.nextQuestion = () => { currentQuestion++; showQuestion(); };
+
+function showResult() {
+    clearInterval(timerInterval);
+    document.getElementById('quiz-screen').classList.add('hidden');
+    document.getElementById('result-screen').classList.remove('hidden');
+    const title = document.getElementById('result-title'), desc = document.getElementById('result-desc');
+    let total = selectedQuestions.length;
+    
+    if (currentMode === 'daily') {
+        if (score === 1) { title.innerText = "🔥 Вызов пройден"; desc.innerText = "Ты справился!"; }
+        else { title.innerText = "❌ Вызов провален"; desc.innerText = "Попробуй завтра!"; }
+    } else {
+        if (score >= 13) { title.innerText = "🏆 Сеньор"; desc.innerText = "Ты знаешь всё!"; }
+        else if (score >= 9) { title.innerText = "🚀 Мидл"; desc.innerText = "Отличный результат!"; }
+        else if (score >= 5) { title.innerText = "🌱 Джуниор"; desc.innerText = "Хорошее начало!"; }
+        else { title.innerText = "👶 Новичок"; desc.innerText = "Главное — практика."; }
     }
-
-    window.nextQuestion = () => {
-        currentQuestion++;
-        showQuestion();
-    };
-
-    function showResult() {
-        clearInterval(timerInterval);
-        document.getElementById('quiz-screen').classList.add('hidden');
-        document.getElementById('result-screen').classList.remove('hidden');
-
-        const title = document.getElementById('result-title');
-        const desc = document.getElementById('result-desc');
-
-        let finalScore = score;
-        let total = selectedQuestions.length;
-
-        if (currentMode === 'daily') {
-            if (score === 1) { title.innerText = "🔥 Вызов пройден"; desc.innerText = "Ты справился!"; }
-            else { title.innerText = "❌ Вызов провален"; desc.innerText = "Попробуй завтра!"; }
-        } else {
-            if (finalScore >= 13) { title.innerText = "🏆 Сеньор"; desc.innerText = "Ты знаешь всё!"; }
-            else if (finalScore >= 9) { title.innerText = "🚀 Мидл"; desc.innerText = "Отличный результат!"; }
-            else if (finalScore >= 5) { title.innerText = "🌱 Джуниор"; desc.innerText = "Хорошее начало!"; }
-            else { title.innerText = "👶 Новичок"; desc.innerText = "Главное — практика."; }
-        }
-
-        checkAchievements();
-
-        if (score === total && total > 1) {
-            confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-        }
-
-        // Разбор ошибок
-        if (wrongAnswers.length > 0 && currentMode === 'test') {
-            document.getElementById('review-block').classList.remove('hidden');
-            const container = document.getElementById('review-container');
-            container.innerHTML = '';
-            wrongAnswers.forEach(w => {
-                container.innerHTML += `<div class="review-item"><strong>${w.question}</strong><br>Правильно: <span>${w.correct}</span></div>`;
-            });
-        }
+    
+    checkAchievements();
+    if (score === total && total > 1) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    
+    if (wrongAnswers.length > 0 && currentMode === 'test') {
+        document.getElementById('review-block').classList.remove('hidden');
+        const container = document.getElementById('review-container'); container.innerHTML = '';
+        wrongAnswers.forEach(w => { container.innerHTML += `<div class="review-item"><strong>${w.question}</strong><br>Правильно: <span>${w.correct}</span></div>`; });
     }
+}
 
-    // ==== КАРТИНКА ====
-    window.generateShareImage = () => {
-        const canvas = document.getElementById('share-canvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Фон
-        const gradient = ctx.createLinearGradient(0, 0, 600, 600);
-        gradient.addColorStop(0, '#6366f1'); gradient.addColorStop(1, '#c084fc');
-        ctx.fillStyle = gradient; ctx.fillRect(0, 0, 600, 600);
-        
-        // Текст
-        ctx.fillStyle = '#ffffff'; ctx.textAlign = 'center';
-        ctx.font = 'bold 36px Montserrat'; ctx.fillText('CodeMaster', 300, 150);
-        
-        ctx.font = 'bold 80px Montserrat';
-        ctx.fillText(document.getElementById('result-title').innerText, 300, 300);
-        
-        ctx.font = '24px Montserrat';
-        ctx.fillText(`Результат: ${score}/${selectedQuestions.length}`, 300, 400);
-        
-        ctx.font = '18px Montserrat';
-        ctx.fillText('Проверь себя: ' + window.location.href, 300, 500);
-        
-        document.getElementById('share-img').style.display = 'block';
-        document.getElementById('share-img').src = canvas.toDataURL();
-        document.getElementById('share-tg-btn').classList.remove('hidden');
-    };
+window.generateCertificate = () => {
+    const name = document.getElementById('player-name').value.trim() || "Выпускник";
+    document.getElementById('cert-name').innerText = name;
+    document.getElementById('cert-level').innerText = document.getElementById('result-title').innerText.replace(/[^А-Яа-яA-Za-z ]/g, '');
+    document.getElementById('cert-date').innerText = new Date().toLocaleDateString('ru-RU');
+    document.getElementById('certificate-block').style.display = 'block';
+    document.getElementById('download-cert-btn').style.display = 'block';
+};
 
-    window.shareToTelegram = () => {
-        const text = encodeURIComponent(`Я прошел тест CodeMaster! Мой результат: ${document.getElementById('result-title').innerText}. А ты?`);
-        window.open(`https://t.me/share/url?url=${window.location.href}&text=${text}`);
-    };
+window.downloadCertificate = () => {
+    html2canvas(document.getElementById('certificate-block')).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'certificate.png';
+        link.href = canvas.toDataURL();
+        link.click();
+    });
+};
 
-    // ==== ДОСТИЖЕНИЯ ====
-    window.showAchievements = () => {
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('achievements-screen').classList.remove('hidden');
-        const list = document.getElementById('achievements-list');
-        const unlocked = JSON.parse(localStorage.getItem('achievements') || '[]');
-        
-        const all = [
-            { id: 'first', name: 'Первый шаг', icon: '🌱', desc: 'Пройти первый тест' },
-            { id: 'pro', name: 'Профи', icon: '🚀', desc: 'Набрать 10+ очков' },
-            { id: 'perfect', name: 'Безошибочный', icon: '🏆', desc: 'Ответить на все вопросы верно' }
-        ];
+window.shareDuel = () => {
+    const text = encodeURIComponent(`Я прошел CodeMaster на ${document.getElementById('result-title').innerText} (${score}/${selectedQuestions.length}). Слабо побить мой рекорд?`);
+    window.open(`https://t.me/share/url?url=${window.location.href}&text=${text}`);
+};
 
-        list.innerHTML = '';
-        all.forEach(a => {
-            const isUnlocked = unlocked.includes(a.id);
-            list.innerHTML += `<div class="ach-badge ${isUnlocked ? 'unlocked' : ''}">${a.icon} ${a.name}</div>`;
-        });
-    };
+window.showAchievements = () => {
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('achievements-screen').classList.remove('hidden');
+    const list = document.getElementById('achievements-list'), unlocked = JSON.parse(localStorage.getItem('achievements') || '[]');
+    const all = [
+        { id: 'first', name: 'Первый шаг', icon: '🌱', desc: 'Пройти первый тест' },
+        { id: 'pro', name: 'Профи', icon: '🚀', desc: 'Набрать 10+ очков' },
+        { id: 'perfect', name: 'Безошибочный', icon: '🏆', desc: 'Ответить на все вопросы верно' }
+    ];
+    list.innerHTML = '';
+    all.forEach(a => { list.innerHTML += `<div class="ach-badge ${unlocked.includes(a.id) ? 'unlocked' : ''}">${a.icon} ${a.name}</div>`; });
+};
 
-    // ==== ЛИДЕРБОРД ====
-    window.showLeaderboard = () => {
-        document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('leaderboard-screen').classList.remove('hidden');
-        loadLeaderboard();
-    };
+window.showLeaderboard = () => {
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('leaderboard-screen').classList.remove('hidden');
+    loadLeaderboard();
+};
 
-    window.submitScore = () => {
-        const name = document.getElementById('player-name').value.trim();
-        if (!name) return alert("Введи имя!");
-        let localData = JSON.parse(localStorage.getItem('leaderboard') || '[]');
-        localData.push({ name, score, timestamp: Date.now() });
-        localStorage.setItem('leaderboard', JSON.stringify(localData));
-        document.getElementById('name-input-block').classList.add('hidden');
-    };
+window.submitScore = () => {
+    const name = document.getElementById('player-name').value.trim();
+    if (!name) return alert("Введи имя!");
+    let localData = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+    localData.push({ name, score, timestamp: Date.now() });
+    localStorage.setItem('leaderboard', JSON.stringify(localData));
+    document.getElementById('name-input-block').classList.add('hidden');
+    alert("Результат сохранен!");
+};
 
-    function loadLeaderboard() {
-        const list = document.getElementById('leaderboard-list');
-        let localData = JSON.parse(localStorage.getItem('leaderboard') || '[]');
-        if (localData.length === 0) { list.innerHTML = 'Пока никто не играл.'; return; }
-        localData.sort((a, b) => b.score - a.score);
-        list.innerHTML = '';
-        localData.slice(0, 10).forEach((item, i) => {
-            list.innerHTML += `<div class="leaderboard-item"><span>${i+1}. ${item.name}</span><span>${item.score}</span></div>`;
-        });
-    }
+function loadLeaderboard() {
+    const list = document.getElementById('leaderboard-list');
+    let localData = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+    if (localData.length === 0) { list.innerHTML = 'Пока никто не играл.'; return; }
+    localData.sort((a, b) => b.score - a.score);
+    list.innerHTML = '';
+    localData.slice(0, 10).forEach((item, i) => { list.innerHTML += `<div class="leaderboard-item"><span>${i+1}. ${item.name}</span><span>${item.score}</span></div>`; });
+}
 </script>
-
-<!-- Подключение конфетти -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </body>
     </html>
