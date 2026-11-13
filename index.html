@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Узнай свой уровень программирования</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #0f0c29;
+            background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 35px 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #00dbde 0%, #fc00ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            font-size: 15px;
+            color: #b3b3b3;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background: linear-gradient(90deg, #00dbde 0%, #fc00ff 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(252, 0, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(252, 0, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: none;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .question {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+            font-size: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .option:hover::before {
+            left: 100%;
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.02);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00dbde 0%, #fc00ff 100%);
+            width: 0%;
+            transition: 0.3s;
+        }
+
+        .result-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #00dbde;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(0, 219, 222, 0.5);
+        }
+
+        .result-desc {
+            color: #b3b3b3;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="start-screen">
+    <h1>💻 Узнай свой уровень</h1>
+    <p>15 вопросов, которые покажут, кто ты: от новичка до сеньора. Готов проверить?</p>
+    <button class="btn" onclick="startTest()">Начать тест</button>
+</div>
+
+<div class="container hidden" id="quiz-screen">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="question" id="question-text"></div>
+    <div id="options-container"></div>
+</div>
+
+<div class="container hidden" id="result-screen">
+    <h1>Твой результат</h1>
+    <div class="result-title" id="result-title"></div>
+    <div class="result-desc" id="result-desc"></div>
+    <button class="btn" onclick="shareResult()">Поделиться в Telegram</button>
+    <button class="btn btn-secondary" onclick="location.reload()">Пройти заново</button>
+</div>
+
+<script>
+    const questions = [
+        { q: "1. Что делает этот код: print('Hello')?", options: ["Выводит текст Hello", "Останавливает программу", "Создает файл", "Ничего не делает"], correct: 0 },
+        { q: "2. Какой язык чаще всего используют для нейросетей?", options: ["HTML", "Python", "C++", "Java"], correct: 1 },
+        { q: "3. Что такое Git?", options: ["Язык программирования", "Система контроля версий", "Редактор кода", "База данных"], correct: 1 },
+        { q: "4. Что означает ошибка 'SyntaxError'?", options: ["Ошибка в логике", "Ошибка в синтаксисе кода", "Нет интернета", "Не хватает памяти"], correct: 1 },
+        { q: "5. Какой из этих языков не является языком программирования?", options: ["Python", "Java", "HTML", "C#"], correct: 2 },
+        { q: "6. Что такое API?", options: ["Игра", "Интерфейс для взаимодействия программ", "База данных", "Тип файла"], correct: 1 },
+        { q: "7. Какой цикл выполняется хотя бы один раз?", options: ["for", "while", "do-while", "foreach"], correct: 2 },
+        { q: "8. Что означает '404'?", options: ["Ошибка сервера", "Страница не найдена", "Нет доступа", "Слишком много запросов"], correct: 1 },
+        { q: "9. Что такое Docker?", options: ["Браузер", "Инструмент для контейнеризации", "Язык программирования", "База данных"], correct: 1 },
+        { q: "10. Что такое SQL-инъекция?", options: ["Ускорение базы", "Взлом через ввод данных", "Сжатие данных", "Резервное копирование"], correct: 1 },
+        { q: "11. Что такое рекурсия?", options: ["Вызов функцией самой себя", "Цикл", "Тип данных", "Ошибка"], correct: 0 },
+        { q: "12. Какой тип данных хранит true/false?", options: ["int", "string", "boolean", "float"], correct: 2 },
+        { q: "13. Что делает команда git commit?", options: ["Сохраняет изменения", "Удаляет файлы", "Скачивает репозиторий", "Создает ветку"], correct: 0 },
+        { q: "14. Что такое REST API?", options: ["Архитектурный стиль для API", "Язык", "База данных", "Фреймворк"], correct: 0 },
+        { q: "15. Что означает 'O(n)' в сложности алгоритма?", options: ["Линейная сложность", "Квадратичная", "Логарифмическая", "Константная"], correct: 0 }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    function startTest() {
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        showQuestion();
+    }
+
+    function showQuestion() {
+        if (currentQuestion >= questions.length) {
+            showResult();
+            return;
+        }
+
+        const q = questions[currentQuestion];
+        document.getElementById('question-text').innerText = q.q;
+        
+        const progressPercent = (currentQuestion / questions.length) * 100;
+        document.getElementById('progress-fill').style.width = progressPercent + '%';
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+
+        q.options.forEach((opt, index) => {
+            const div = document.createElement('div');
+            div.className = 'option';
+            div.innerText = opt;
+            div.onclick = () => checkAnswer(index);
+            optionsContainer.appendChild(div);
+        });
+    }
+
+    function checkAnswer(index) {
+        if (index === questions[currentQuestion].correct) {
+            score++;
+        }
+        currentQuestion++;
+        showQuestion();
+    }
+
+    function showResult() {
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        
+        document.getElementById('progress-fill').style.width = '100%';
+
+        const title = document.getElementById('result-title');
+        const desc = document.getElementById('result-desc');
+
+        if (score === 15) {
+            title.innerText = "🏆 Сеньор";
+            desc.innerText = "Идеально! Ты знаешь всё. Пора захватывать мир технологий.";
+        } else if (score >= 11) {
+            title.innerText = "🚀 Мидл";
+            desc.innerText = "Отличный результат! Ты готов к реальным проектам.";
+        } else if (score >= 6) {
+            title.innerText = "🌱 Джуниор";
+            desc.innerText = "Хорошее начало! Продолжай учиться, и всё получится.";
+        } else {
+            title.innerText = "👶 Новичок";
+            desc.innerText = "Не переживай! Все с чего-то начинали. Главное — практика.";
+        }
+    }
+
+    function shareResult() {
+        const text = encodeURIComponent(`Я прошел тест на уровень программирования! Мой результат: ${document.getElementById('result-title').innerText}. А ты?`);
+        window.open(`https://t.me/share/url?url=${window.location.href}&text=${text}`);
+    }
+</script>
+
+</body>
+</html>
