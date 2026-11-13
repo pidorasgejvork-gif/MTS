@@ -59,6 +59,24 @@ body {
     100% { background-position: 0% 50%; }
 }
 
+/* Aurora эффект */
+body::before {
+    content: '';
+    position: fixed;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(circle at 50% 50%, transparent 0%, var(--bg) 70%);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+    animation: rotateAurora 30s linear infinite;
+}
+
+@keyframes rotateAurora {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 .container {
     background: var(--card-bg);
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -211,10 +229,10 @@ canvas { display: none; }
 <p>Проверь свои знания. 100 вопросов. Умная система запоминает твои ошибки.</p>
 <button class="btn" onclick="startMode('test')">🎯 Обычный тест (15 вопросов)</button>
 <div class="menu-grid">
+<div class="menu-item" onclick="startMode('marathon')"><span>🏃</span><span>Марафон (100 вопросов)</span></div>
 <div class="menu-item" onclick="startMode('srs')"><span>🧠</span><span>Умный тест (Ошибки)</span></div>
 <div class="menu-item" onclick="startMode('daily')"><span>🔥</span><span>Вызов дня</span></div>
 <div class="menu-item" onclick="showAchievements()"><span>🏆</span><span>Достижения</span></div>
-<div class="menu-item" onclick="showLeaderboard()"><span>📊</span><span>Лидеры</span></div>
 </div>
 </div>
 
@@ -256,12 +274,6 @@ canvas { display: none; }
 <button class="btn btn-secondary" onclick="location.reload()" style="margin-top:20px;">Назад</button>
 </div>
 
-<div class="container hidden" id="leaderboard-screen">
-<h1>📊 Таблица лидеров</h1>
-<div class="leaderboard" id="leaderboard-container"><div id="leaderboard-list">Загрузка...</div></div>
-<button class="btn btn-secondary" onclick="location.reload()" style="margin-top:20px;">Назад</button>
-</div>
-
 <script type="module">
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioCtx = new AudioContext();
@@ -272,6 +284,9 @@ function playSound(type) {
         oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
         oscillator.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1);
         gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+    } else if (type === 'click') {
+        oscillator.type = 'triangle'; oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
     } else {
         oscillator.type = 'sawtooth'; oscillator.frequency.setValueAtTime(150, audioCtx.currentTime);
         gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
@@ -399,7 +414,7 @@ window.toggleTheme = () => {
 };
 
 window.startMode = (mode) => {
-    currentMode = mode; isTraining = (mode === 'srs');
+    currentMode = mode; isTraining = (mode === 'srs' || mode === 'marathon');
     let wrongIds = JSON.parse(localStorage.getItem('wrongIds') || '[]');
     
     if (mode === 'srs' && wrongIds.length > 0) {
@@ -408,6 +423,8 @@ window.startMode = (mode) => {
     } else if (mode === 'daily') {
         let hardQuestions = allQuestions.filter(q => q.lvl === 'hard');
         selectedQuestions = [hardQuestions[Math.floor(Math.random() * hardQuestions.length)]];
+    } else if (mode === 'marathon') {
+        selectedQuestions = [...allQuestions].sort(() => 0.5 - Math.random());
     } else {
         selectedQuestions = [...allQuestions].sort(() => 0.5 - Math.random()).slice(0, 15);
     }
@@ -415,7 +432,7 @@ window.startMode = (mode) => {
     document.getElementById('start-screen').classList.add('hidden');
     document.getElementById('quiz-screen').classList.remove('hidden');
     
-    if (mode !== 'srs' && mode !== 'daily') {
+    if (mode !== 'srs' && mode !== 'daily' && mode !== 'marathon') {
         endTime = Date.now() + timeLeft * 1000; updateTimer();
         timerInterval = setInterval(updateTimer, 1000);
     } else { document.getElementById('timer-display').style.display = 'none'; }
@@ -434,13 +451,12 @@ function showQuestion() {
     if (currentQuestion >= selectedQuestions.length) { showResult(); return; }
     const q = selectedQuestions[currentQuestion];
     
-    // === ПЕРЕМЕШИВАНИЕ ОТВЕТОВ ===
+    // Перемешивание ответов
     let shuffledOptions = q.options.map((opt, i) => ({ opt, originalIndex: i }));
     for (let i = shuffledOptions.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
     }
-    // ==============================
 
     document.getElementById('question-text').innerText = q.q;
     document.getElementById('question-counter').innerText = `Вопрос ${currentQuestion + 1}/${selectedQuestions.length}`;
@@ -489,7 +505,7 @@ function checkAnswer(index, element) {
 
     document.querySelectorAll('.option').forEach(el => el.style.pointerEvents = 'none');
     
-    if (currentMode === 'srs' || currentMode === 'daily') {
+    if (currentMode === 'srs' || currentMode === 'daily' || currentMode === 'marathon') {
         document.getElementById('explanation-box').classList.add('show');
         document.getElementById('next-btn').classList.remove('hidden');
     } else { setTimeout(() => { currentQuestion++; showQuestion(); }, 1000); }
@@ -507,6 +523,9 @@ function showResult() {
     if (currentMode === 'daily') {
         if (score === 1) { title.innerText = "🔥 Вызов пройден"; desc.innerText = "Ты справился!"; }
         else { title.innerText = "❌ Вызов провален"; desc.innerText = "Попробуй завтра!"; }
+    } else if (currentMode === 'marathon') {
+        title.innerText = "🏃 Марафон завершён";
+        desc.innerText = `Ты ответил на ${score} из ${total} вопросов.`;
     } else {
         if (score >= 13) { title.innerText = "🏆 Сеньор"; desc.innerText = "Ты знаешь всё!"; }
         else if (score >= 9) { title.innerText = "🚀 Мидл"; desc.innerText = "Отличный результат!"; }
@@ -588,4 +607,4 @@ function loadLeaderboard() {
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </body>
-</html>
+        </html>
